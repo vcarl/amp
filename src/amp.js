@@ -42,8 +42,8 @@ define([], function() {
 	};
 
 	Amp.prototype.draw = function() {
-		for ( var i = 0; i < this.shapes.length; i++ ) {
-			this.drawLine(this.shapes[i]);
+		while (this.shapes.length > 0) {
+			this.drawLine(this.shapes.pop());
 		}
 	};
 
