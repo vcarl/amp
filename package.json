@@ -1,0 +1,9 @@
+{
+  "name": "amp",
+  "version": "0.0.0",
+  "repository": "https://github.com/vcarl/amp",
+  "description": "Simple line animations",
+  "author": "Carl Vitullo",
+  "dependencies": {
+  }
+}
