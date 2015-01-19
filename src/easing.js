@@ -12,6 +12,9 @@ define([], function() {
 	jQuery.easing['jswing'] = jQuery.easing['swing'];
 
 	return {
+		linear: function(t, b, c, d) {
+			return c * (t / d) + b;
+		},
 		// t: current time, b: begInnIng value, c: change In value, d: duration
 		inQuad: function (t, b, c, d) {
 			return c*(t/=d)*t + b;
