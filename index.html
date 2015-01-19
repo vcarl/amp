@@ -8,6 +8,54 @@
 	<link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
 	<link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
 	<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+	<style>
+	.muted {
+		color: #bbb;
+	}
+	.btn {
+		display: inline-block;
+		padding: 6px 12px;
+		margin-bottom: 0;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 1.42857143;
+		text-align: center;
+		white-space: nowrap;
+		vertical-align: middle;
+		-ms-touch-action: manipulation;
+		touch-action: manipulation;
+		cursor: pointer;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		background-image: none;
+		border: 1px solid transparent;
+		border-radius: 4px;
+	}
+	.form-group {
+		display: inline-block;
+	}
+	.input {
+		box-sizing: border-box;
+		display: block;
+		width: 100%;
+		height: 34px;
+		padding: 6px 12px;
+		font-size: 14px;
+		line-height: 1.42857143;
+		color: #555;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		-webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		-o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+	}
+	</style>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -30,8 +78,11 @@
 				<section id="main-content">
 					<canvas id="demo" style="width: 100%"></canvas>
 					<div class="form-group">
-						<input name="count" value="10" />
-						<select name="ease">
+						<input class="input" name="count" value="50" />
+					</div>
+					<div class="form-group">
+						<select class="input" name="ease">
+							<option name="linear", val="linear">linear</option>
 							<option name="inQuad", val="inQuad">inQuad</option>
 							<option name="outQuad", val="outQuad">outQuad</option>
 							<option name="inOutQuad", val="inOutQuad">inOutQuad</option>
@@ -63,37 +114,50 @@
 							<option name="outBounce", val="outBounce">outBounce</option>
 						</select>
 					</div>
+					<div class="form-group">
+						<button class="btn" data-draw>Draw!</button>
+					</div>
 					<h2>
 <a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic usage</h2>
 
-<div class="highlight highlight-javascript"><pre>    <span class="pl-c">// Create a new instance of Amp with the DOM element for your canvas.</span>
-		<span class="pl-s">var</span> Amp <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Amp</span>(<span class="pl-s3">document</span>.<span class="pl-s3">getElementById</span>(<span class="pl-s1"><span class="pl-pds">'</span>amp-canvas-id<span class="pl-pds">'</span></span>));
+<div class="highlight highlight-javascript"><pre>
+<span class="muted">// Create a new instance of Amp with the DOM element for your canvas.</span>
+	var Amp = new Amp(document.getElementById('amp-canvas-id'));
 
-		Amp.addLine({
-				<span class="pl-c">// The origin point for the line</span>
-				origin<span class="pl-k">:</span> {
-						x<span class="pl-k">:</span> <span class="pl-c1">0</span>,
-						y<span class="pl-k">:</span> <span class="pl-c1">0</span>
-				},
-				<span class="pl-c">// The length in pixels of the line.</span>
-				length<span class="pl-k">:</span> <span class="pl-c1">100</span>,
-				<span class="pl-c">// The angle (in radians) the line should be drawn at.</span>
-				angle<span class="pl-k">:</span> <span class="pl-s3">Math</span>.<span class="pl-sc">PI</span> / <span class="pl-c1">2</span>,
-				<span class="pl-c">// The easing function to use. </span>
-				<span class="pl-c">// Currently the only easing function provided is exponential out.</span>
-				easing<span class="pl-k">:</span> Amp.ease.expOut,
-				<span class="pl-c">// The delay (in seconds) before beginning animation.</span>
-				delay<span class="pl-k">:</span> <span class="pl-c1">1</span>,
-				<span class="pl-c">// The length of time (in seconds) drawing should take.</span>
-				duration<span class="pl-k">:</span> <span class="pl-c1">1</span>,
-				<span class="pl-c">// The width of the line in px.</span>
-				width<span class="pl-k">:</span> <span class="pl-c1">5</span>,
-				<span class="pl-c">// Style can be anything context.strokeStyle is compatible with</span>
-				style<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>#0000ff<span class="pl-pds">"</span></span>
-		});
+	Amp.addLine({
+		<span class="muted">// The origin point for the line.</span>
+		<span class="muted">// {x: 0, y: 0} (default)</span>
+		origin: {
+			x: 0,
+			y: 0
+		},
+		<span class="muted">// The length of the line in px.</span>
+		length: 100,
+		<span class="muted">// The width of the line in px.</span>
+		width: 5,
+		<span class="muted">// The angle (in radians) the line should be drawn at.</span>
+		<span class="muted">// Math.PI / 2 (default)</span>
+		angle: Math.PI / 2,
+		<span class="muted">// The easing function to use.</span>
+		<span class="muted">// Amp.ease.linear (default)</span>
+		easing: Amp.ease.expOut,
+		<span class="muted">// The delay (in ms) before beginning animation.</span>
+		<span class="muted">// 1000 (default)</span>
+		delay: 1000,
+		<span class="muted">// The length of time (in ms) drawing should take.</span>
+		<span class="muted">// 1000 (default)</span>
+		duration: 1000,
+		<span class="muted">// Style can be anything <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D.strokeStyle">context.strokeStyle</a> is compatible with.</span>
+		<span class="muted">// "#000000" (default)</span>
+		style: "#0000ff",
+		<span class="muted">// What kind of cap the line should have.</span>
+		<span class="muted">// round, square, butt (default)</span>
+		cap: 'round'
+	});
 
-		<span class="pl-c">// Begin the animations.</span>
-		Amp.draw();</pre></div>
+	<span class="muted">// Begin the animations.</span>
+	Amp.draw();
+</pre></div>
 				</section>
 
 				<aside id="sidebar">
