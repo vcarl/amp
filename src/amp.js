@@ -1,23 +1,4 @@
-define([], function() {
-	var Amp = function(canvas) {
-		this.types = [];
-		this.shapes = [];
-
-		this.ease = {
-			expOut: function(timeSinceStart, startVal, change, duration) {
-				return change * ( -Math.pow( 2, -10 * timeSinceStart/ (duration) ) + 1 ) + startVal;
-			}
-		};
-
-		this.ratio = window.devicePixelRatio || 1;
-		canvas.style.width = canvas.width;
-		canvas.style.height = canvas.height;
-		canvas.width = canvas.width * window.devicePixelRatio;
-		canvas.height = canvas.height * window.devicePixelRatio;
-
-		this.canvas = canvas.getContext('2d');
-		this.canvas.scale(this.ratio,this.ratio);
-	};
+define(['src/easing.js'], function(easing) {
 
 	// Line constructs a line for drawing, and takes an object.
 	// { origin ({x,y}), (opt)delta ({x,y}), length, angle, duration, delay, width, style, easing }
@@ -41,15 +22,9 @@ define([], function() {
 		this.easing = line.easing;
 	};
 
-	Amp.prototype.draw = function() {
-		while (this.shapes.length > 0) {
-			this.drawLine(this.shapes.pop());
-		}
-	};
-
-	Amp.prototype.drawLine = function(line) {
+	Line.prototype.draw = function(context) {
 		var _this = this;
-		window.setTimeout( 
+		this.timeout = window.setTimeout( 
 			function() {
 				var startTime, currTime, draw;
 				startTime = Date.now();
@@ -57,26 +32,61 @@ define([], function() {
 				draw = function() {
 					var end;
 					currTime = Date.now();
-					_this.canvas.beginPath();
-					_this.canvas.strokeStyle = line.style;
-					_this.canvas.lineWidth = line.width;
-					_this.canvas.moveTo( line.origin.x, line.origin.y );
+					context.beginPath();
+					context.strokeStyle = _this.style;
+					context.lineWidth = _this.width;
+					context.moveTo( _this.origin.x, _this.origin.y );
 					end = {
-						x: line.easing(currTime - startTime, line.origin.x, line.delta.x, line.duration * 1000),
-						y: line.easing(currTime - startTime, line.origin.y, line.delta.y, line.duration * 1000),
+						x: _this.easing(currTime - startTime, _this.origin.x, _this.delta.x, _this.duration * 1000),
+						y: _this.easing(currTime - startTime, _this.origin.y, _this.delta.y, _this.duration * 1000),
 					};
-					_this.canvas.lineTo(end.x, end.y);
-					_this.canvas.stroke();
-					_this.canvas.closePath();
-					if (currTime <= (startTime + line.duration + 1000)) {
+					context.lineTo(end.x, end.y);
+					context.stroke();
+					context.closePath();
+					if (currTime <= (startTime + _this.duration + 1000)) {
 						window.requestAnimationFrame(draw)
 					}
 				};
 
 				draw();
 			},
-			line.delay * 1000
+			this.delay * 1000
 		);
+	};
+
+
+
+	var Amp = function(canvas) {
+		this.types = [];
+		this.shapes = [];
+
+		this.ease = easing;
+		// this.ease = {
+		// 	linear: function(t, s, c, d) {
+		// 		return c * t / d + s;
+		// 	},
+		// 	expOut: function(timeSinceStart, startVal, change, duration) {
+		// 		return change * ( -Math.pow( 2, -10 * timeSinceStart/ (duration) ) + 1 ) + startVal;
+		// 	}
+		// };
+
+		this.ratio = window.devicePixelRatio || 1;
+		canvas.style.width = canvas.width;
+		canvas.style.height = canvas.height;
+		canvas.width = canvas.width * window.devicePixelRatio;
+		canvas.height = canvas.height * window.devicePixelRatio;
+
+		this.canvas = canvas.getContext('2d');
+		this.canvas.scale(this.ratio,this.ratio);
+	};
+
+	Amp.prototype.draw = function() {
+		while (this.shapes.length > 0) {
+			this.shapes.pop().draw(this.canvas);
+		}
+	};
+
+	Amp.prototype.drawLine = function(line) {
 	};
 	// addLine takes an object
 	// { x, y, length, angle, duration, delay, width, style, easing }
