@@ -1,5 +1,5 @@
 define(['src/easing.js'], function(easing) {
-
+	'use strict';
 	// Line constructs a line for drawing, and takes an object.
 	// { origin ({x,y}), (opt)delta ({x,y}), length, angle, duration, delay, width, style, easing }
 	var Line = function(line) {
@@ -11,64 +11,54 @@ define(['src/easing.js'], function(easing) {
 				y: line.length * Math.sin(line.angle)
 			};
 		}
-		this.origin = line.origin;
-		this.delta = line.delta;
-		this.length = line.length;
-		this.angle = line.angle;
-		this.duration = line.duration
-		this.delay = line.delay;
-		this.width = line.width;
-		this.style = line.style;
-		this.easing = line.easing;
+		this.done = false;
+		this.origin   = line.origin   || {x: 0, y: 0};
+		this.angle    = line.angle    || Math.PI / 2;
+		this.duration = line.duration || 1000;
+		this.delay    = line.delay    || 0;
+		this.style    = line.style    || '#000000';
+		this.easing   = line.easing   || easing.linear;
+		this.cap      = line.cap      || 'butt';
+		this.delta    = line.delta;
+		this.length   = line.length;
+		this.width    = line.width;
 	};
 
-	Line.prototype.draw = function(context) {
-		var _this = this;
-		this.timeout = window.setTimeout( 
-			function() {
-				var startTime, currTime, draw;
-				startTime = Date.now();
-
-				draw = function() {
-					var end;
-					currTime = Date.now();
-					context.beginPath();
-					context.strokeStyle = _this.style;
-					context.lineWidth = _this.width;
-					context.moveTo( _this.origin.x, _this.origin.y );
-					end = {
-						x: _this.easing(currTime - startTime, _this.origin.x, _this.delta.x, _this.duration * 1000),
-						y: _this.easing(currTime - startTime, _this.origin.y, _this.delta.y, _this.duration * 1000),
-					};
-					context.lineTo(end.x, end.y);
-					context.stroke();
-					context.closePath();
-					if (currTime <= (startTime + _this.duration + 1000)) {
-						window.requestAnimationFrame(draw)
-					}
-				};
-
-				draw();
-			},
-			this.delay * 1000
-		);
+	Line.prototype.draw = function(context, start, current) {
+		var end, time;
+			current = Date.now();
+		time = Math.floor(((current - start) > this.delay) ? (current - start) - this.delay : 0);
+		if (time > this.duration) {
+			this.done = true;
+			end = {
+				x: this.origin.x + this.delta.x,
+				y: this.origin.y + this.delta.y,
+			};
+		} else {
+			this.done = false;
+			end = {
+				x: this.easing(time, this.origin.x, this.delta.x, this.duration),
+				y: this.easing(time, this.origin.y, this.delta.y, this.duration),
+			};
+		}
+		context.beginPath();
+		context.strokeStyle = this.style;
+		context.lineCap = this.cap;
+		context.lineWidth = this.width;
+		context.moveTo( this.origin.x, this.origin.y );
+		context.lineTo(end.x, end.y);
+		context.stroke();
+		context.closePath();
 	};
 
 
 
 	var Amp = function(canvas) {
+		this.done = false;
 		this.types = [];
 		this.shapes = [];
 
 		this.ease = easing;
-		// this.ease = {
-		// 	linear: function(t, s, c, d) {
-		// 		return c * t / d + s;
-		// 	},
-		// 	expOut: function(timeSinceStart, startVal, change, duration) {
-		// 		return change * ( -Math.pow( 2, -10 * timeSinceStart/ (duration) ) + 1 ) + startVal;
-		// 	}
-		// };
 
 		this.ratio = window.devicePixelRatio || 1;
 		canvas.style.width = canvas.width;
@@ -76,18 +66,44 @@ define(['src/easing.js'], function(easing) {
 		canvas.width = canvas.width * window.devicePixelRatio;
 		canvas.height = canvas.height * window.devicePixelRatio;
 
-		this.canvas = canvas.getContext('2d');
-		this.canvas.scale(this.ratio,this.ratio);
+		this.size = {
+			width: canvas.width,
+			height: canvas.height
+		};
+
+		this.context = canvas.getContext('2d');
+		this.context.scale(this.ratio,this.ratio);
+	};
+
+	Amp.prototype.clear = function() {
+		this.context.clearRect(
+			-this.size.width, -this.size.height,
+			2 * this.size.width, 2 * this.size.height);
 	};
 
 	Amp.prototype.draw = function() {
-		while (this.shapes.length > 0) {
-			this.shapes.pop().draw(this.canvas);
-		}
+		var start, current, update;
+		start = Date.now();
+
+		update = function() {
+			this.done = true;
+			this.clear();
+
+			for (var i = 0; i < this.shapes.length; i++) {
+				this.shapes[i].draw(this.context, start, current);
+				if (this.done && !this.shapes[i].done) {
+					this.done = false;
+				};
+			}
+			if (!this.done) {
+				window.requestAnimationFrame(update);
+			}
+		}.bind(this);
+
+		window.requestAnimationFrame(update);
+
 	};
 
-	Amp.prototype.drawLine = function(line) {
-	};
 	// addLine takes an object
 	// { x, y, length, angle, duration, delay, width, style, easing }
 	Amp.prototype.addLine = function(line) {
