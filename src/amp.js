@@ -104,10 +104,17 @@ define(['src/easing.js'], function(easing) {
 
 	};
 
+	Amp.prototype.addShape = function(shape) {
+		this.shapes.push(shape);
+		this.shapes.sort(function(a, b) {
+			return a.delay < b.delay;
+		})
+	}
+
 	// addLine takes an object
 	// { x, y, length, angle, duration, delay, width, style, easing }
 	Amp.prototype.addLine = function(line) {
-		this.shapes.push(new Line(line));
+		this.addShape(new Line(line));
 	};
 
 	return Amp;
