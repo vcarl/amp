@@ -26,7 +26,7 @@ define(['src/easing.js'], function(easing) {
 
 	Line.prototype.draw = function(context, start, current) {
 		var end, time;
-			current = Date.now();
+		current = Date.now();
 		time = Math.floor(((current - start) > this.delay) ? (current - start) - this.delay : 0);
 		if (time > this.duration) {
 			this.done = true;
@@ -48,6 +48,40 @@ define(['src/easing.js'], function(easing) {
 		context.moveTo( this.origin.x, this.origin.y );
 		context.lineTo(end.x, end.y);
 		context.stroke();
+		context.closePath();
+	};
+
+
+
+
+	// Line constructs a circl for drawing.
+	// { origin ({x,y}), radius, duration, delay, style, easing }
+	var Circle = function(circle) {
+		this.done = false;
+		this.origin   = circle.origin   || {x: 0, y: 0};
+		this.easing   = circle.easing   || easing.linear;
+		this.duration = circle.duration || 1000;
+		this.delay    = circle.delay    || 0;
+		this.style    = circle.style    || '#000000';
+		this.fill     = circle.fill     || true;
+		this.radius   = circle.radius
+	};
+
+	Circle.prototype.draw = function(context, start, current) {
+		var radius, time;
+		current = Date.now();
+		time = Math.floor(((current - start) > this.delay) ? (current - start) - this.delay : 0);
+		if (time > this.duration) {
+			this.done = true;
+			radius = this.radius
+		} else {
+			this.done = false;
+			radius = this.easing(time, 0, this.radius, this.duration);
+		}
+		context.beginPath();
+		context.strokeStyle = context.fillStyle = this.style;
+		context.arc(this.origin.x, this.origin.y, radius, 0, 2 * Math.PI);
+		(this.fill) ? context.fill() : context.stroke();
 		context.closePath();
 	};
 
@@ -115,6 +149,9 @@ define(['src/easing.js'], function(easing) {
 	// { x, y, length, angle, duration, delay, width, style, easing }
 	Amp.prototype.addLine = function(line) {
 		this.addShape(new Line(line));
+	};
+	Amp.prototype.addCircle = function(circle) {
+		this.addShape(new Circle(circle));
 	};
 
 	return Amp;
