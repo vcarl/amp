@@ -42,27 +42,38 @@ require(['amp', 'jquery', 'underscore'], function(Amp, $, _) {
 			// If we're drawing a different number of lines, create new random lines.
 			Amp.shapes = [];
 			for (var i = 0; i < n; i++) {
-				Amp.addLine({
-					origin: {
-						x: Math.floor(Math.random() * width),
-						y: Math.floor(Math.random() * height)
-					},
-					length: 30 + Math.floor(Math.random() * (height - 70)), 
-					angle: directions[Math.floor(Math.random() * 4)],
-					easing: ease,
-					delay: Math.random() * 1000,
-					duration: 1000,
-					cap: 'round',
-					width: 10 * Math.random(),
-					style: colors[Math.floor(Math.random() * 4)]
-				});
+				(Math.random() > .5) ? 
+					Amp.addCircle({
+						origin: {
+							x: 20 + Math.floor(Math.random() * (width - 40)),
+							y: 20 + Math.floor(Math.random() * (height - 40))
+						},
+						radius: 10 + Math.floor(Math.random() * (height / 20)), 
+						easing: ease,
+						delay: Math.random() * 1000,
+						duration: 1000,
+						style: colors[Math.floor(Math.random() * 4)]
+					}) :
+					Amp.addLine({
+						origin: {
+							x: 20 + Math.floor(Math.random() * (width - 40)),
+							y: 20 + Math.floor(Math.random() * (height - 40))
+						},
+						length: 10 + Math.floor(Math.random() * 100), 
+						angle: directions[Math.floor(Math.random() * 4)],
+						easing: ease,
+						delay: Math.random() * 1000,
+						duration: 1000,
+						cap: 'round',
+						width: 10 * Math.random(),
+						style: colors[Math.floor(Math.random() * 4)]
+					});
 			};
 		} else {
 			// If we're drawing the same number of lines, just update the easing
 			// function and reset its state.
 			for (var i = 0; i < n; i++) {
 				Amp.shapes[i].easing = ease;
-				// Amp.shapes[i].done = false;
 			};
 		}
 		lastCount = n;
